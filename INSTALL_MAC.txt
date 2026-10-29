@@ -1,0 +1,12 @@
+NOVA BRECHER - Installation auf dem Mac
+
+1. "NOVA BRECHER.vst3"        nach  ~/Library/Audio/Plug-Ins/VST3/
+   "NOVA BRECHER.component"   nach  ~/Library/Audio/Plug-Ins/Components/
+   (Im Finder: Gehe zu > Gehe zu Ordner ... und den Pfad einfuegen)
+
+2. Weil das Plugin nicht bei Apple notarisiert ist, einmal im Terminal:
+
+   xattr -cr ~/Library/Audio/Plug-Ins/VST3/"NOVA BRECHER.vst3"
+   xattr -cr ~/Library/Audio/Plug-Ins/Components/"NOVA BRECHER.component"
+
+3. Ableton neu starten. Unter Plug-Ins > NOVA erscheint NOVA BRECHER.

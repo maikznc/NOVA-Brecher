@@ -1,0 +1,10 @@
+NOVA BRECHER - Installation unter Windows
+
+1. Den Ordner "NOVA BRECHER.vst3" nach
+   C:\Program Files\Common Files\VST3\
+   kopieren.
+
+2. Ableton starten, unter Optionen > Einstellungen > Plug-Ins
+   "VST3 System-Ordner verwenden" einschalten und "Neu scannen" klicken.
+
+3. NOVA BRECHER erscheint unter Plug-Ins > NOVA.
