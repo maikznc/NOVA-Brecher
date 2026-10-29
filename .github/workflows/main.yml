@@ -1,0 +1,65 @@
+name: Build NOVA BRECHER
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS
+            os: macos-14
+          - name: Windows
+            os: windows-latest
+
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure (macOS, Universal Binary)
+        if: runner.os == 'macOS'
+        run: >
+          cmake -B build -G Xcode
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13
+          -DBM_COPY_PLUGIN=OFF
+
+      - name: Configure (Windows)
+        if: runner.os == 'Windows'
+        run: cmake -B build -G "Visual Studio 17 2022" -A x64 -DBM_COPY_PLUGIN=OFF
+
+      - name: Build
+        run: cmake --build build --config Release --parallel 4
+
+      - name: Package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          set -e
+          A=build/NovaBrecher_artefacts/Release
+          mkdir -p out
+          cp -R "$A/VST3/NOVA BRECHER.vst3" out/
+          cp -R "$A/AU/NOVA BRECHER.component" out/
+          codesign --force --deep --sign - "out/NOVA BRECHER.vst3"
+          codesign --force --deep --sign - "out/NOVA BRECHER.component"
+          cp INSTALL_MAC.txt out/ || true
+          cd out && ditto -c -k --sequesterRsrc --keepParent . ../NOVA-BRECHER-macOS.zip
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $a = "build/NovaBrecher_artefacts/Release/VST3/NOVA BRECHER.vst3"
+          New-Item -ItemType Directory -Force out | Out-Null
+          Copy-Item -Recurse $a out/
+          Copy-Item INSTALL_WINDOWS.txt out/ -ErrorAction SilentlyContinue
+          Compress-Archive -Path out/* -DestinationPath NOVA-BRECHER-Windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NOVA-BRECHER-${{ matrix.name }}
+          path: NOVA-BRECHER-*.zip
